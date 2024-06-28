@@ -100,7 +100,8 @@ class AccountData implements \JsonSerializable
             'account_type_name' => $this->accountTypeName,
             'max_allowance' => $this->maxAllowance,
             'fund_allocations' => $this->fundAllocations,
-            'transactions' => $this->transactions
+            'transactions' => $this->transactions,
+            'balance' => $this->balance()
         ];
     }
 
@@ -132,5 +133,23 @@ class AccountData implements \JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    public function balance() : float
+    {
+        $cash = 0.00;
+        $investments = 0.00;
+        foreach ($this->transactions as $transaction){
+            if($transaction['type'] == 'deposit'){
+                $cash += $transaction['gbp_total'];
+            } elseif ($transaction['type'] == 'buy'){
+                $cash -= $transaction['gbp_total'];
+                $investments+=$transaction['units'] * $transaction['fund_current_price'];
+            } elseif ($transaction['type'] == 'sell'){
+                $cash += $transaction['gbp_total'];
+            }
+        }
+
+        return round($cash + $investments,3);
     }
 }
