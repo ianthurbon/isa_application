@@ -1,0 +1,51 @@
+#!/usr/bin/env php
+<?php
+
+// calculate script execution time with sprintf("%.2fs", microtime(true) - START_TIME);
+define('START_TIME', microtime(true));
+
+use App\QueueServer\CRM\Application\CRMBatchUpdateCommand;
+use DI\ContainerBuilder;
+use Symfony\Component\Console\Application;
+
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    echo "Only CLI allowed. Script stopped.\n";
+    exit(1);
+}
+define('ROOT_PATH', dirname(__DIR__));
+require ROOT_PATH.'/vendor/autoload.php';
+
+$containerBuilder = new ContainerBuilder();
+
+//Load Environment Variables
+$dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH, ['.env'], false);
+$dotenv->load();
+
+if (false) { // Should be set to true in production
+    $containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
+}
+
+// Set up settings
+$settings = require ROOT_PATH.'/app/settings.php';
+$settings($containerBuilder);
+
+// Set up dependencies
+$dependencies = require ROOT_PATH.'/app/dependencies.php';
+$dependencies($containerBuilder);
+
+// Set up repositories
+$repositories = require ROOT_PATH.'/app/repositories.php';
+$repositories($containerBuilder);
+// Build PHP-DI Container instance
+$container = $containerBuilder->build();
+
+//Configure Eloquent
+$eloquent = require ROOT_PATH.'/app/eloquent.php';
+
+$application = new Application();
+
+$commands = require ROOT_PATH.'/app/commands.php';
+foreach ($commands as $command){
+    $application->add($container->get($command));
+}
+$application->run();

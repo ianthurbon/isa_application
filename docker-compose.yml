@@ -1,0 +1,27 @@
+version: '3'
+services:
+  app:
+    build: docker
+    volumes:
+      - ./slim:/var/www/html
+      - ./ssl-certs:/etc/ssl/web
+    environment:
+      TZ: UTC
+      PUID: ${UID:-9999}
+      PGID: ${GID:-9999}
+    ports:
+      - "89:80"
+      - "8089:443"
+    links:
+      - db
+
+  db:
+    image: mysql:latest
+    environment:
+      TZ: UTC
+      MYSQL_ROOT_PASSWORD: mydb_p@ssw0rd
+      MYSQL_DATABASE: cushon_db
+    volumes:
+      - "./db/data:/var/lib/mysql"
+    ports:
+      - "3389:3306"
