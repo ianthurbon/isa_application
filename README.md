@@ -5,7 +5,7 @@
 - This application requires docker to be installed in the local environment. It also relies on `make` for some helper commands.
   - Docker can be downloaded from https://www.docker.com/products/docker-desktop/
   - Make is used for some helper commands and can be downloaded from https://www.gnu.org/software/make/ or `sudo apt-get install make`. The `Makefile` with the commands can be found at in the project root folder.
-- Download the source from github at xxx
+- Download the source from github at https://github.com/ianthurbon/isa_application
 - From the root directory run `make up` followed by `make first-time`
 
 ***Introduction***
